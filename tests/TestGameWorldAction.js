@@ -93,5 +93,3 @@
             "canExecute should have been invoked with parameters from outer function");
     });
 });
-
-//@ sourceURL=TestGameWorldAction.js

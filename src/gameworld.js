@@ -41,5 +41,3 @@
 
     return GameWorld;
 });
-
-//@ sourceURL=GameWorld.js

@@ -99,5 +99,3 @@
         equal(model.money, 50, "Building cost should have been charged");
     });
 });
-
-//@ sourceURL=TestGameWorld.js
