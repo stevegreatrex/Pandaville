@@ -6,6 +6,7 @@
     <script src="../scripts/r.js" type="text/javascript"></script>
     <script type="text/javascript">
         require.config({
+            baseUrl: "../src",
             paths: {
                 "jquery": "../scripts/jquery-1.8.3.min",
             },
@@ -15,8 +16,8 @@
         QUnit.config.autostart = false;
 
         require([
-            "TestGameWorld",
-            "TestGameWorldAction"
+            "../tests/TestGameWorld",
+            "../tests/TestGameWorldAction"
             ], QUnit.start);
     </script>
     <title>Pandaville Tests</title>
