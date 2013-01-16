@@ -1,4 +1,4 @@
-﻿require(["jquery", "../src/GameWorld"], function ($, GameWorld) {
+﻿require(["jquery", "GameWorld"], function ($, GameWorld) {
     module("GameWorld");
     var
         //check that the specified model is the default
@@ -99,3 +99,5 @@
         equal(model.money, 50, "Building cost should have been charged");
     });
 });
+
+//@ sourceURL=TestGameWorld.js
