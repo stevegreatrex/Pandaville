@@ -44,7 +44,11 @@ requirejs(["GameServer", "express", "config", "errors"], function(GameServer, ex
     });
 
     app.get("/", function(req, res) {
-        res.sendfile("client.html");
+        res.sendfile("index.html");
+    });
+
+    app.get("/:worldId", function(req, res) {
+        res.render("world.jade");
     });
 
     app.listen(config.server.port);
