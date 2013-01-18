@@ -1,4 +1,4 @@
-﻿define(["GameWorldAction"], function (GameWorldAction) {
+﻿define(["GameWorldAction", "guid"], function (GameWorldAction, guid) {
     var createDefaultModel = function () {
         return {
             money: 1000,
@@ -79,6 +79,7 @@
 
         self.addBuilding = GameWorldAction.create(
             function (building) {
+                building.id = guid(); //always assign a new guid to the building
                 model.buildings.push(building);
                 model.money -= building.cost;
             },
