@@ -11,7 +11,7 @@
         onModelRetrieved = function (model) {
             var world = new GameWorld(model);
 
-            if (!world[action].canExecute.apply(this, actionArgs)) {
+            if (!world[action] || !world[action].canExecute.apply(this, actionArgs)) {
                 deferred.reject(Errors.invalidAction, model);
             } else {
                 world[action].apply(this, actionArgs);

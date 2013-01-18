@@ -90,6 +90,53 @@
             equal(serverError, Errors.modelNotFound);
         });
 
+        test("worldAction fails if action doesn't exist", function () {
+            var server = new GameServer(),
+                id     = "id",
+                building = {},
+                model = {};
+               
+            //setup the datasource to return the promise
+            var dataSourcePromise = setupGetModelCall(id);
+
+            //call the server and record the response
+            var serverPromise = server.worldAction(id, "addBuilding", building);
+            
+            //check that the promise has not yet been resolved
+            equal(serverPromise.state(), "pending", "Should not be resolved yet");
+
+            //remove the action
+            var addBuilding = gameWorld.object.addBuilding;
+            try
+            {
+                gameWorld.object.addBuilding = null;
+            
+                //record the error and returned model from the server
+                var serverError, returnedModel;
+                serverPromise.fail(function (error, model) {
+                    serverError   = error;
+                    returnedModel = model;
+                });
+
+                //now let the datasource succeed
+                dataSourcePromise.resolve(model);
+
+                //and check that the server promise was rejected with the original model
+                equal(serverPromise.state(), "rejected", "Should have been rejected");
+                equal(serverError, Errors.invalidAction, "Returned error was incorrect");
+                equal(returnedModel, model, "Should have returned the original model");
+
+                //check that the constructed GameWorld had the model passed in
+                equal(gameWorld.constructorModel, model, "Unexpected constructor model");
+
+                //no need to check that gameWorld wasn't called - mock handles this
+            }
+            finally {
+                //re-attach the addBuilding mock
+                gameWorld.object.addBuilding = addBuilding;
+            }
+        });
+
         test("worldAction fails if canExecute returns false", function () {
             var server = new GameServer(),
                 id     = "id",
