@@ -59,14 +59,14 @@
     });
 
     test("addBuilding cannot execute when specified building doesn't fit", function () {
-        var model = createModel(),
-            world = new GameWorld(model),
+        var model                = createModel(),
+            world                = new GameWorld(model),
             outOfBoundsNegativeX = createBuilding({ position: { x: -1, y: 0 } }),
             outOfBoundsNegativeY = createBuilding({ position: { x: 0, y: -1 } }),
-            outOfBoundsX = createBuilding({ position: { x: 10, y: 1 } }),
-            outOfBoundsY = createBuilding({ position: { x: 1, y: 10 } }),
-            tooBigX = createBuilding({ position: { x: 3, y: 1 }, size: { x: 8, y: 1 } }),
-            tooBigY = createBuilding({ position: { x: 1, y: 3 }, size: { x: 1, y: 8 } });
+            outOfBoundsX         = createBuilding({ position: { x: 10, y: 1 } }),
+            outOfBoundsY         = createBuilding({ position: { x: 1, y: 10 } }),
+            tooBigX              = createBuilding({ position: { x: 3, y: 1 }, size: { x: 8, y: 1 } }),
+            tooBigY              = createBuilding({ position: { x: 1, y: 3 }, size: { x: 1, y: 8 } });
 
         ok(!world.addBuilding.canExecute(outOfBoundsNegativeX), "Out of bounds - negative X position");
         ok(!world.addBuilding.canExecute(outOfBoundsNegativeY), "Out of bounds - negative Y position");
@@ -74,6 +74,56 @@
         ok(!world.addBuilding.canExecute(outOfBoundsY), "Out of bounds - too large Y position");
         ok(!world.addBuilding.canExecute(tooBigX), "Out of bounds - too big in X direction");
         ok(!world.addBuilding.canExecute(tooBigY), "Out of bounds - too big in Y direction");
+    });
+
+    test("addBuilding cannot execute when specified building overlaps an existing one", function () {
+        var model = createModel({
+                money: 1000,
+                buildings: [
+                    {
+                        position: { x: 2, y: 2 },
+                        size: { x: 3, y: 3 }
+                    }
+                ]
+            }),
+            world                    = new GameWorld(model),
+            fullyWithin              = createBuilding({ position: { x: 3, y: 3 }, size: { x: 1, y: 1 } }),
+            overlapFromAbove         = createBuilding({ position: { x: 3, y: 1 }, size: { x: 1, y: 3 } }),
+            overlapFromSide          = createBuilding({ position: { x: 1, y: 3 }, size: { x: 3, y: 1 } }),
+            startFromWithin          = createBuilding({ position: { x: 3, y: 3 }, size: { x: 5, y: 5 } }),
+            overlapEntirelyFromAbove = createBuilding({ position: { x: 3, y: 1 }, size: { x: 1, y: 5 } }),
+            overlapEntirelyFromSide  = createBuilding({ position: { x: 1, y: 3 }, size: { x: 5, y: 1 } }),
+            sameSizeAndPosition      = createBuilding({ position: { x: 2, y: 2 }, size: { x: 3, y: 3 } });
+
+        ok(!world.addBuilding.canExecute(fullyWithin), "Fully within another building");
+        ok(!world.addBuilding.canExecute(overlapFromAbove), "Starting outside, then passing downward through existing building");
+        ok(!world.addBuilding.canExecute(overlapFromSide), "Starting outside, then passing sideways through existing building");
+        ok(!world.addBuilding.canExecute(startFromWithin), "Starting within another building");
+        ok(!world.addBuilding.canExecute(overlapEntirelyFromAbove), "Starting outside, then passing downward through existing building and out other side");
+        ok(!world.addBuilding.canExecute(overlapEntirelyFromSide), "Starting outside, then passing sideways through existing building and out other side");
+        ok(!world.addBuilding.canExecute(sameSizeAndPosition), "Same size and position");
+    });
+
+     test("addBuilding can execute when specified building does not overlap an existing one", function () {
+        var model = createModel({
+                money: 1000,
+                buildings: [
+                    {
+                        position: { x: 2, y: 2 },
+                        size: { x: 3, y: 3 }
+                    }
+                ]
+            }),
+            world      = new GameWorld(model),
+            toTheLeft  = createBuilding({ position: { x: 1, y: 3 }, size: { x: 1, y: 1 } }),
+            toTheRight = createBuilding({ position: { x: 5, y: 3 }, size: { x: 1, y: 1 } }),
+            onTop      = createBuilding({ position: { x: 3, y: 1 }, size: { x: 1, y: 1 } }),
+            underneath = createBuilding({ position: { x: 3, y: 5 }, size: { x: 1, y: 1 } });
+
+        ok(world.addBuilding.canExecute(toTheLeft), "To the left");
+        ok(world.addBuilding.canExecute(toTheRight), "To the right");
+        ok(world.addBuilding.canExecute(onTop), "On top");
+        ok(world.addBuilding.canExecute(underneath), "Underneath");
     });
 
     test("addBuilding can execute for a valid building", function () {

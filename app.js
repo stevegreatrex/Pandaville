@@ -8,14 +8,15 @@ requirejs.config({
 requirejs(["GameServer"], function(GameServer) {
     var server = new GameServer();
     server.worldAction("stevesvillage", "addBuilding", {
-        name: "castle",
-        size: { x: 5, y: 4 },
-        position: { x: 3, y: 2 },
-        cost: 10
+        name: "hut",
+        size: { x: 1, y: 1 },
+        position: { x: 1, y: 1 },
+        cost: 1
     }).done(function(model) {
-        console.log(JSON.stringify(model));
+        console.log(JSON.stringify(model, null, 4));
     })
-    .fail(function(error) {
+    .fail(function(error, model) {
         console.log("Error: " + error);
+        console.log(JSON.stringify(model, null, 4));
     });
 });

@@ -1,33 +1,34 @@
 ﻿//taken from http://stackoverflow.com/questions/11439540/how-can-i-mock-dependencies-for-unit-testing-in-requirejs
 
 define(["underscore", "jquery"], function (_, $) {
-   function createContext(stubs) {
-      var map = {};
+    var contextId = 0;
 
-      _.each(stubs, function (value, key) {
-        var stubname = 'stub' + key;
+    function createContext(stubs) {
+        var map = {};
 
-        map[key] = stubname;
-      });
+        _.each(stubs, function (value, key) {
+            var stubname = 'stub' + key;
 
-
-      var context = require.config($.extend(true, require.sharedConfig, {
-        context: Math.floor(Math.random() * 1000000),
-        map: {
-          "*": map
-        }
-      }));
-
-      _.each(stubs, function (value, key) {
-        var stubname = 'stub' + key;
-
-        define(stubname, function () {
-          return value;
+            map[key] = stubname;
         });
 
-      });
+        contextId += 1;
+        var context = require.config($.extend(true, {}, require.sharedConfig, {
+            context: contextId,
+            map: {
+                "*": map
+            }
+        }));
 
-      return context;
+        _.each(stubs, function (value, key) {
+            var stubname = 'stub' + key;
+
+            define(stubname, function () {
+                return value;
+            });
+        });
+
+        return context;
 
     }
 
