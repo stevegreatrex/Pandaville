@@ -63,7 +63,7 @@
             ok(server);
         });
 
-        test("addBuilding fails on non-existant model ID", function() {
+        test("worldAction fails on non-existant model ID", function() {
             var server = new GameServer(),
                 id     = "id";
                
@@ -71,7 +71,7 @@
             var dataSourcePromise = setupGetModelCall(id);
 
             //call the server and record the response
-            var serverPromise = server.addBuilding(id, {});
+            var serverPromise = server.worldAction(id, "addBuilding", {});
             
             //check that the promise has not yet been resolved
             equal(serverPromise.state(), "pending", "Should not be resolved yet");
@@ -90,7 +90,7 @@
             equal(serverError, Errors.modelNotFound);
         });
 
-        test("addBuilding fails if canExecute returns false", function () {
+        test("worldAction fails if canExecute returns false", function () {
             var server = new GameServer(),
                 id     = "id",
                 building = {},
@@ -100,7 +100,7 @@
             var dataSourcePromise = setupGetModelCall(id);
 
             //call the server and record the response
-            var serverPromise = server.addBuilding(id, building);
+            var serverPromise = server.worldAction(id, "addBuilding", building);
             
             //check that the promise has not yet been resolved
             equal(serverPromise.state(), "pending", "Should not be resolved yet");
@@ -129,7 +129,7 @@
             //no need to check that gameWorld wasn't called - mock handles this
         });
 
-        test("addBuilding updates model, then saves and returns the updated model", function () {
+        test("worldAction updates model, then saves and returns the updated model", function () {
              var server = new GameServer(),
                 id     = "id",
                 building = { key: "building" },
@@ -139,7 +139,7 @@
             var dataSourcePromise = setupGetModelCall(id);
 
             //call the server and record the response
-            var serverPromise = server.addBuilding(id, building);
+            var serverPromise = server.worldAction(id, "addBuilding", building);
             
             //check that the promise has not yet been resolved
             equal(serverPromise.state(), "pending", "Should not be resolved yet");
@@ -173,15 +173,15 @@
             equal(gameWorld.constructorModel, model, "Unexpected constructor model");
         });
 
-        test("addBuilding returns error raised when updating model", function () {
-             var server = new GameServer(),
-                id     = "id",
+        test("worldAction returns error raised when updating model", function () {
+             var server  = new GameServer(),
+                id       = "id",
                 building = { key: "building" },
-                model = { key: "original" };
+                model    = { key: "original" };
                
             //setup the datasource getModel and call the server
             var dataSourcePromise = setupGetModelCall(id);
-            var serverPromise = server.addBuilding(id, building);
+            var serverPromise = server.worldAction(id, "addBuilding", building);
 
             //expect model update and getModel calls
             var updatedModel = setupActionCallWithCanExecute("addBuilding", building);
