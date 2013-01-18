@@ -20,4 +20,5 @@ require([
     "../tests/TestGameWorld",
     "../tests/TestGameWorldAction",
     "../tests/TestGameServer",
+    "../tests/TestDataSource",
     ], QUnit.start);
