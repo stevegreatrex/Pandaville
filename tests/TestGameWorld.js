@@ -104,7 +104,7 @@
         ok(!world.addBuilding.canExecute(sameSizeAndPosition), "Same size and position");
     });
 
-     test("addBuilding can execute when specified building does not overlap an existing one", function () {
+    test("addBuilding can execute when specified building does not overlap an existing one", function () {
         var model = createModel({
                 money: 1000,
                 buildings: [
@@ -139,13 +139,33 @@
     });
 
     test("addBuilding adds the specified building to the model and charges the cost", function() {
-        var model = createModel({ money: 100 }),
-        world = new GameWorld(model),
-        building = createBuilding({ cost: 50 });
+        var model    = createModel({ money: 100 }),
+            world    = new GameWorld(model),
+            building = createBuilding({ cost: 50 });
 
         world.addBuilding(building);
 
         equal(model.buildings.indexOf(building), 0, "Building should have been added");
         equal(model.money, 50, "Building cost should have been charged");
+
+        ok(building.id, "The building should be assigned a unique ID");
+    });
+
+    test("addBuilding assigns a unique ID to each building", function() {
+        var model     = createModel({ money: 100 }),
+            world     = new GameWorld(model),
+            building1 = createBuilding({ cost: 50 }),
+            building2 = createBuilding({ cost: 50, position: { x: 2, y: 2 } });
+
+        world.addBuilding(building1);
+        world.addBuilding(building2);
+
+        equal(model.buildings.indexOf(building1), 0, "Building should have been added");
+        equal(model.buildings.indexOf(building2), 1, "Building should have been added");
+        equal(model.money, 0, "Building cost should have been charged");
+
+        ok(building1.id, "The building should be assigned a unique ID");
+        ok(building2.id, "The building should be assigned a unique ID");
+        notEqual(building1.id, building2.id, "The assigned IDs should be UNIQUE");
     });
 });
