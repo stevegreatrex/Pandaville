@@ -1,4 +1,4 @@
-﻿define(["underscore", "jquery", "GameWorld", "dataSource", "Errors"], function (_, $, GameWorld, dataSource, Errors) {
+﻿define(["underscore", "jquery", "GameWorld", "dataSource", "errors"], function (_, $, GameWorld, dataSource, Errors) {
     var GameServer = function () {
 
     };

@@ -1,4 +1,4 @@
-﻿require(["MockFactory", "sinon", "jquery", "Errors"], function(MockFactory, sinon, $, Errors) {
+﻿require(["MockFactory", "sinon", "jquery", "errors"], function(MockFactory, sinon, $, Errors) {
     //
     // Mock setup
     //
