@@ -6,6 +6,11 @@
         "underscore": "../scripts/underscore.min",
         "MockFactory": "../tests/MockFactory"
     },
+    map: {
+        "*": {
+            "jquery-deferred": "jquery"
+        }
+    },
     shim: {
         "sinon": { exports: "sinon" },
         "underscore": { exports: "_" }

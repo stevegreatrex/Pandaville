@@ -1,4 +1,4 @@
-﻿define(["jquery", "config", "request", "errors"], function ($, config, request, errors) {
+﻿define(["jquery-deferred", "config", "request", "errors"], function ($, config, request, errors) {
     var handleError = function (response, error, deferred) {
         if (response.statusCode === 404) {
             deferred.reject(errors.modelNotFound);
@@ -31,25 +31,18 @@
 
             return deferred.promise();
         },
-        updateModel: function (id, model) {
-            if (!id) { throw "Invalid id specified"; }
+        updateModel: function (model) {
             if (!model) { throw "Invalid model specified"; }
 
             var deferred = $.Deferred(),
-                modelUrl = config.couchDb.url + "/" + id;
-
+                modelUrl = config.couchDb.url;
+            
             request.post(modelUrl, {
-                multipart: [ {
-                    "content-type": "application/json",
-                    body: JSON.stringify(model)
-                    }
-                ]
+                json: model
             },
             function (error, response, body) {
                 if (handleError(response, error, deferred)) { return; }
-                
-                var data = JSON.parse(body);
-                deferred.resolve(data.rev);
+                deferred.resolve(body.rev);
             });
 
             return deferred.promise();

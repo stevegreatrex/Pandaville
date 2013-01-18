@@ -21,14 +21,10 @@
     //
     // Helpers
     //
-    var setupUpdateCall = function (id, model) {
+    var setupUpdateCall = function (model) {
         var updateCall = request.expects("post")
-            .withArgs(config.couchDb.url + "/" + id, {
-                multipart: [ {
-                    "content-type": "application/json",
-                    body: JSON.stringify(model)
-                    }
-                ]
+            .withArgs(config.couchDb.url, {
+                json: model
             });
 
         return updateCall;
@@ -113,25 +109,19 @@
             deepEqual(returnedModel, model, "Model was not returned");
         });
 
-        test("updateModel throws on null id or model", function () {
-            raises(function() {
-                dataSource.updateModel(null, {});
-            }, /id/);
-
-            raises(function() {
-                dataSource.updateModel("id", null);
+        test("updateModel throws on null model", function () {
+           raises(function() {
+                dataSource.updateModel(null);
             },/model/);
         });
 
         test("updateModel rejects promise with error from request", function () {
-            var id = "id";
-
             //setup the request call
-            var updateCall = setupUpdateCall(id, {});
+            var updateCall = setupUpdateCall({});
 
             //invoke with a fail handler
             var serverError;
-            dataSource.updateModel(id, {})
+            dataSource.updateModel({})
                 .fail(function(error) {
                     serverError = error;
                 });
@@ -143,14 +133,12 @@
         });
 
         test("updateModel rejects with 'not found' error for 404s", function () {
-            var id = "id";
-
             //setup the request call
-            var updateCall = setupUpdateCall(id, {});
+            var updateCall = setupUpdateCall({});
 
             //invoke with a fail handler
             var serverError;
-            dataSource.updateModel(id, {})
+            dataSource.updateModel({})
                 .fail(function(error) {
                     serverError = error;
                 });
@@ -162,14 +150,12 @@
         });
 
         test("updateModel rejects with 'conflict' error for 409s", function () {
-            var id = "id";
-
             //setup the request call
-            var updateCall = setupUpdateCall(id, {});
+            var updateCall = setupUpdateCall({});
 
             //invoke with a fail handler
             var serverError;
-            dataSource.updateModel(id, {})
+            dataSource.updateModel({})
                 .fail(function(error) {
                     serverError = error;
                 });
@@ -181,8 +167,7 @@
         });
 
         test("updateModel resolves when request succeeds", function () {
-            var id = "id",
-                model = {
+            var model = {
                     property: {
                         value: "1",
                         otherValue: 2
@@ -191,16 +176,16 @@
                 };
 
             //setup the request call
-            var updateCall = setupUpdateCall(id, model);
+            var updateCall = setupUpdateCall(model);
 
             //invoke with a fail handler
             var serverRev;
-            dataSource.updateModel(id, model)
+            dataSource.updateModel(model)
                 .done(function(rev) {
                     serverRev = rev;
                 });
 
-            updateCall.yield(null, { statusCode: 201 }, '{ "rev": "new rev" }');
+            updateCall.yield(null, { statusCode: 201 }, { rev: "new rev" });
 
             //check that the done handler was invoked
             equal(serverRev, "new rev", "Should have returned new revision");
