@@ -10,6 +10,13 @@ requirejs(["GameServer", "express", "config", "errors"], function(GameServer, ex
         app = express();
 
     app.use(express.bodyParser());
+    app.configure(function() {
+        app.use("/media", express.static(__dirname + "/media"));
+        app.use("/scripts", express.static(__dirname + "/scripts"));
+        app.use(express.static(__dirname + "/"));
+    });
+
+
 
     app.post("/:worldId/:worldAction", function (req, res) {
         if (config.server.logLevel === "verbose") {
@@ -34,6 +41,10 @@ requirejs(["GameServer", "express", "config", "errors"], function(GameServer, ex
                 res.json(200, model);
                 res.end();
             });
+    });
+
+    app.get("/", function(req, res) {
+        res.sendfile("client.html");
     });
 
     app.listen(config.server.port);
