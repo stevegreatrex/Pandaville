@@ -1,4 +1,4 @@
-﻿require.config({
+﻿require.sharedConfig = {
     baseUrl: "../src",
     paths: {
         "jquery": "../scripts/jquery-1.8.3.min",
@@ -11,7 +11,8 @@
         "underscore": { exports: "_" }
     },
     deps: ["jquery"]
-});
+};
+require.config(require.sharedConfig);
 
 QUnit.config.autostart = false;
 

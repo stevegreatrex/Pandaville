@@ -1,6 +1,6 @@
 ﻿//taken from http://stackoverflow.com/questions/11439540/how-can-i-mock-dependencies-for-unit-testing-in-requirejs
 
-define(["underscore"], function (_) {
+define(["underscore", "jquery"], function (_, $) {
    function createContext(stubs) {
       var map = {};
 
@@ -11,13 +11,12 @@ define(["underscore"], function (_) {
       });
 
 
-      var context = require.config({
-        baseUrl: "../src", //todo: find a way to pull this from require configuration
+      var context = require.config($.extend(true, require.sharedConfig, {
         context: Math.floor(Math.random() * 1000000),
         map: {
           "*": map
         }
-      });
+      }));
 
       _.each(stubs, function (value, key) {
         var stubname = 'stub' + key;
