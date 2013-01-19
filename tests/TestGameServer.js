@@ -254,5 +254,14 @@
             equal(serverError, "random error", "Returned error was incorrect");
             equal(returnedModel, model, "Should have returned the original model");
         });
+
+        test("getModel is forwarded to dataSource", function () {
+            var server = new GameServer();
+
+            var dataSourcePromise = setupGetModelCall("id");
+            var serverPromise = server.getModel("id");
+
+            equal(serverPromise, dataSourcePromise, "getModel should be a direct forward to the datasource");
+        });
     });
 });
