@@ -16,7 +16,7 @@
             } else {
                 world[action].apply(this, actionArgs);
                 var updatedModel = world.getModel();
-                dataSource.updateModel(updatedModel)
+                dataSource.updateModel(id, updatedModel)
                     .done(_.bind(deferred.resolve, this, updatedModel))
                     .fail(function(error) {
                         deferred.reject(error, model);

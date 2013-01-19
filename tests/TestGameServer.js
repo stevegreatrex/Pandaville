@@ -32,11 +32,11 @@
 
         return dataSourcePromise;
     },
-    setupUpdateModelCall = function (model) {
+    setupUpdateModelCall = function (id, model) {
         var dataSourcePromise = $.Deferred();
         dataSource
             .expects("updateModel")
-            .withExactArgs(model)
+            .withExactArgs(id, model)
             .once()
             .returns(dataSourcePromise);
 
@@ -195,7 +195,7 @@
             var updatedModel = setupActionCallWithCanExecute("addBuilding", building);
             
             //after model updated, expect the data source to be updated
-            var dataSourceUpdatePromise = setupUpdateModelCall(updatedModel);
+            var dataSourceUpdatePromise = setupUpdateModelCall(id ,updatedModel);
 
             //now let the datasource getModel call succeed
             dataSourcePromise.resolve(model);
@@ -234,7 +234,7 @@
             var updatedModel = setupActionCallWithCanExecute("addBuilding", building);
             
             //after model updated, expect the data source to be updated
-            var dataSourceUpdatePromise = setupUpdateModelCall(updatedModel);
+            var dataSourceUpdatePromise = setupUpdateModelCall(id, updatedModel);
 
             //now let the datasource getModel call succeed
             dataSourcePromise.resolve(model);

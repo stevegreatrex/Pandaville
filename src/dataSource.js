@@ -31,11 +31,12 @@
 
             return deferred.promise();
         },
-        updateModel: function (model) {
+        updateModel: function (id, model) {
+            if (!id) { throw "Invalid id specified"; }
             if (!model) { throw "Invalid model specified"; }
 
             var deferred = $.Deferred(),
-                modelUrl = config.couchDb.url;
+                modelUrl = config.couchDb.url + "/" + id;
             
             request.put(modelUrl, {
                 json: model
