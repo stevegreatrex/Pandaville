@@ -3,6 +3,10 @@
 
     };
 
+    GameServer.prototype.getModel = function (id) {
+        return dataSource.getModel(id);
+    };
+
     GameServer.prototype.worldAction = function (id, action) {
         var deferred   = $.Deferred(),
             actionArgs = Array.prototype.slice.call(arguments, 2),
