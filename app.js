@@ -11,7 +11,7 @@ requirejs(["GameServer", "express", "config", "errors", "fs"], function(GameServ
 
     app.use(express.bodyParser());
     app.configure(function() {
-        app.use("/media", express.static(__dirname + "/media"));
+        app.use("/content", express.static(__dirname + "/content"));
         app.use("/scripts", express.static(__dirname + "/scripts"));
         app.use("/src", express.static(__dirname + "/src"));
         app.use(express.static(__dirname + "/views"));
@@ -29,7 +29,7 @@ requirejs(["GameServer", "express", "config", "errors", "fs"], function(GameServ
 
 
 
-    app.post("/:worldId/:worldAction", function (req, res) {
+    app.post("/world/:worldId/:worldAction", function (req, res) {
         if (config.server.logLevel === "verbose") {
             console.log("Processing " + req.url);
         }
@@ -55,11 +55,11 @@ requirejs(["GameServer", "express", "config", "errors", "fs"], function(GameServ
     });
 
     app.get("/", function(req, res) {
-        res.sendfile("views/index.html");
+        res.render("index.html");
     });
 
     app.get("/:worldId", function(req, res) {
-        res.render("world.html", {
+        res.render("index.html", {
             worldId: req.params.worldId
         });
     });
