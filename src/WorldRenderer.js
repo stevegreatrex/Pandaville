@@ -1,11 +1,18 @@
 ﻿define(["jquery", "kinetic", "knockout"], function ($, Kinetic, ko) {
-    var fadeIn = function (target, duration) {
-            duration = duration || 700;
+    
+    //
+    // Helpers
+    // 
+    var fadeIn = function (target, duration, then) {
             var animation = new Kinetic.Animation(function(frame) {
             if (frame.time >= duration) {
-                animation.stop() ;
+                target.setOpacity(1.0)
+                animation.stop();
+                if (then) {
+                    then();
+                }
             } else {
-                target.setOpacity(frame.time / duration) ;
+                target.setOpacity(frame.time / duration);
             }
             }, target.getLayer());
 
@@ -38,40 +45,128 @@
         redraw(node);
     };
 
+    //
+    // Renderer
+    //
     var WorldRenderer = function (viewModel) {
-        var $world = $("#world"),
-            stage = new Kinetic.Stage({
-                container: "world",
-                width: $world.innerWidth(),
-                height: $world.innerHeight()
-            }),
-            layer = new Kinetic.Layer({ opacity: 0.0 }),
-            rect = new Kinetic.Rect({
-                x: 239,
-                y: 75,
-                width: 100,
-                height: 50,
-                stroke: 'black',
-                strokeWidth: 4
-            }),
-            money = new Kinetic.Text({
-                x: 10, y: 400,
-                fontSize: 30,
-                fill: "green"
+        var self = this;
+        
+        this.viewModel  = viewModel;
+        this.stage      = this.createStage("world");
+        this.background = this.createBackground();
+        this.worldBoard = this.createWorldBoard();
+
+        this.stage.add(this.background);
+        this.stage.add(this.worldBoard);
+
+        fadeIn(this.background, 1000, function () {
+            fadeIn(self.worldBoard, 700);
+        });
+    };
+
+    //
+    // Stage
+    //
+    WorldRenderer.prototype.createStage = function (id) {
+        var $world = $("#" + id);
+
+        return new Kinetic.Stage({
+            container: id,
+            width: $world.innerWidth(),
+            height: $world.innerHeight(),
+        });
+    };
+
+    //
+    // Background
+    //
+    WorldRenderer.prototype.createBackground = function() {
+        var
+        width = this.stage.getWidth(),
+        height = this.stage.getHeight(),
+        center = { x: width / 2, y: height /2 },
+        background = new Kinetic.Layer({
+            opacity: 0.0,
+        }),
+        fill = new Kinetic.Rect({
+            x: 0, y: 0,
+            width: width, height: height,
+            fillLinearGradientStartPoint: [center.x, 0],
+            fillLinearGradientEndPoint: [center.x, height],
+            fillLinearGradientColorStops: [0, '#05011A', 1, '#0C0140']
+        }),
+        hill = new Kinetic.Ellipse({
+            x: center.x, y: height,
+            width: width*2, height: height * 0.4,
+            fill: "#040112"
+        });
+
+        background.add(fill);
+
+        for (var i = 0; i < 100; i++) {
+            var star = new Kinetic.Circle({
+                x: Math.random() * width,
+                y: Math.random() * center.y,
+                width: 1,
+                height: 1,
+                stroke: "white"
+                
             });
+            background.add(star);
+        }
 
-        rect.on("click", function () {
-            viewModel.money(viewModel.money()-10);
-        });
+        background.add(hill);
 
-        bind(money, {
-            text: viewModel.money
-        });
+        return background;
+    };
 
-        layer.add(money);
-        layer.add(rect);
-        stage.add(layer);
-        fadeIn(layer);
+    //
+    // WorldBoard
+    //
+    WorldRenderer.prototype.createWorldBoard = function () {
+
+        var self       = this,
+            width      = this.stage.getWidth(),
+            height     = this.stage.getHeight(),
+            border     = Math.max(Math.max(width * 0.05, height * 0.05), 10),
+            squareSize = Math.max((width - border*2) / this.viewModel.size.x(), (height - border*2) / this.viewModel.size.y()),
+            layer      = new Kinetic.Layer({ opacity: 0.0, draggable: true }),
+            board      = new Kinetic.Rect({
+                x: border, y: border,
+                width: this.viewModel.size.x(), height: this.viewModel.size.y(),
+                scale: squareSize,
+                fill: "#ccc",
+                shadowColor: "white",
+                shadowBlur: 100,
+                shadowOffset: [0, 0],
+                shadowOpacity: 0.7
+            }),
+            addAxis = function (points) {
+                var axis = new Kinetic.Line({
+                    points: points,
+                    stroke: "#aaa",
+                    strokeWidth: 0.5
+                });
+                layer.add(axis);
+            };
+
+        layer.add(board);
+
+        for (var x = 1; x < this.viewModel.size.x(); x++) {
+            addAxis([
+                border, border + (x*squareSize),
+                border + (this.viewModel.size.y()*squareSize), border + (x*squareSize)
+            ]);
+        }
+
+        for (var y = 1; y < this.viewModel.size.y(); y++) {
+            addAxis([
+                border + (y*squareSize), border,
+                border + (y*squareSize), border + (this.viewModel.size.x()*squareSize)
+            ]);
+        }
+
+        return layer;
     };
 
     return WorldRenderer;
