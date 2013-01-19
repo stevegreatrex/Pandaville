@@ -51,14 +51,19 @@
     var WorldRenderer = function (viewModel) {
         var self = this;
         
-        this.viewModel  = viewModel;
-        this.stage      = this.createStage("world");
-        this.background = this.createBackground();
-        this.worldBoard = this.createWorldBoard();
-        this.zoom       = 1.0;
+        this.viewModel       = viewModel;
+        this.stage           = this.createStage("world");
+        this.background      = this.createBackground();
+        this.worldBoardLayer = new Kinetic.Layer();
+        this.worldBoard      = this.createWorldBoard();
+        this.zoom            = 1.0;
 
+        this.renderBuildings();
+        this.worldBoard.add(this.buildings);
+
+        this.worldBoardLayer.add(this.worldBoard);
         this.stage.add(this.background);
-        this.stage.add(this.worldBoard);
+        this.stage.add(this.worldBoardLayer);
 
         fadeIn(this.background, 1000, function () {
             fadeIn(self.worldBoard, 700);
@@ -126,16 +131,16 @@
     //
     WorldRenderer.prototype.createWorldBoard = function () {
 
-        var self   = this,
-            width  = this.stage.getWidth(),
-            height = this.stage.getHeight(),
-            border = Math.max(Math.max(width * 0.05, height * 0.05), 10),
-            layer  = new Kinetic.Layer({ opacity: 0.0, draggable: true });
+        var self      = this,
+            width     = this.stage.getWidth(),
+            height    = this.stage.getHeight(),
+            border    = Math.max(Math.max(width * 0.05, height * 0.05), 10),
+            container = new Kinetic.Group({ x: border, y: border, opacity: 0, draggable: true });
 
         this.squareSize = Math.max((width - border * 2) / this.viewModel.size.x(), (height - border * 2) / this.viewModel.size.y());
 
         var board = new Kinetic.Rect({
-                x: border, y: border,
+                x: 0, y: 0,
                 width: this.viewModel.size.x(), height: this.viewModel.size.y(),
                 scale: this.squareSize,
                 fill: "#ccc",
@@ -151,11 +156,11 @@
                     strokeWidth: 0.5,
                     drawHitFunc: function (){}
                 });
-                layer.add(axis);
+                container.add(axis);
             };
 
         $(window).on("mousewheel", function(e) {
-            var scale = self.worldBoard.getScale(),
+            var scale = self.worldBoardLayer.getScale(),
                 delta = e.originalEvent.wheelDelta;
 
             if (delta < 0) {
@@ -163,30 +168,55 @@
             } else {
                 self.zoom = Math.min(self.zoom+0.1, 1.5)
             }
-            self.worldBoard.setScale({
+            self.worldBoardLayer.setScale({
                 x: self.zoom,
                 y: self.zoom
             });
-            self.worldBoard.draw();
+            self.worldBoardLayer.draw();
         });
 
-        layer.add(board);
+        container.add(board);
 
         for (var x = 1; x < this.viewModel.size.x(); x++) {
             addAxis([
-                border, border + (x*this.squareSize),
-                border + (this.viewModel.size.y()*this.squareSize), border + (x*this.squareSize)
+                0, (x*this.squareSize),
+                (this.viewModel.size.y()*this.squareSize), (x*this.squareSize)
             ]);
         }
 
         for (var y = 1; y < this.viewModel.size.y(); y++) {
             addAxis([
-                border + (y*this.squareSize), border,
-                border + (y*this.squareSize), border + (this.viewModel.size.x()*this.squareSize)
+                (y*this.squareSize), 0,
+                (y*this.squareSize), (this.viewModel.size.x()*this.squareSize)
             ]);
         }
 
-        return layer;
+        //layer.add(container);
+
+        return container;
+    };
+
+    //
+    // Building
+    //
+    WorldRenderer.prototype.createBuilding = function (building) {
+        var building = new Kinetic.Rect({
+                x: building.position.x() * this.squareSize, y: building.position.y() * this.squareSize,
+                width: building.size.x(), height: building.size.y(),
+                scale: this.squareSize,
+                fill: "#eee"
+            });
+
+        return building;
+    };
+    WorldRenderer.prototype.renderBuildings = function () {
+        this.buildings = this.buildings || new Kinetic.Group();
+        this.buildings.removeChildren();
+
+        var viewModelBuildings = this.viewModel.buildings();
+        for (var i = 0; i < viewModelBuildings.length; i++) {
+            this.buildings.add(this.createBuilding(viewModelBuildings[i]));
+        }
     };
 
     return WorldRenderer;
