@@ -19,8 +19,8 @@
 });
 
 
-require(["jquery"], function ($, ko, GameWorldViewModel) {
+require(["jquery", "knockout", "GameWorldViewModel"], function ($, ko, GameWorldViewModel) {
     $(function() {
-        $("h1").fadeOut(1000);
+        $("h1").html(window.options.worldId);
     });
 });

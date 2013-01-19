@@ -5,7 +5,7 @@ requirejs.config({
     nodeRequire: require
 });
 
-requirejs(["GameServer", "express", "config", "errors"], function(GameServer, express, config, errors) {
+requirejs(["GameServer", "express", "config", "errors", "fs"], function(GameServer, express, config, errors, fs) {
     var server = new GameServer(),
         app = express();
 
@@ -13,7 +13,18 @@ requirejs(["GameServer", "express", "config", "errors"], function(GameServer, ex
     app.configure(function() {
         app.use("/media", express.static(__dirname + "/media"));
         app.use("/scripts", express.static(__dirname + "/scripts"));
-        app.use(express.static(__dirname + "/"));
+        app.use("/src", express.static(__dirname + "/src"));
+        app.use(express.static(__dirname + "/views"));
+
+        // disable layout
+        app.set("view options", {layout: false});
+
+        // make a custom html template
+        app.engine('.html', function(path, options, fn) {
+            fs.readFile(path, "utf8", function(err, str) {
+                fn(null, str + "<script>window.options = " + JSON.stringify(options) + ";</script>");
+            });
+        });
     });
 
 
@@ -44,11 +55,13 @@ requirejs(["GameServer", "express", "config", "errors"], function(GameServer, ex
     });
 
     app.get("/", function(req, res) {
-        res.sendfile("index.html");
+        res.sendfile("views/index.html");
     });
 
     app.get("/:worldId", function(req, res) {
-        res.render("world.jade");
+        res.render("world.html", {
+            worldId: req.params.worldId
+        });
     });
 
     app.listen(config.server.port);
