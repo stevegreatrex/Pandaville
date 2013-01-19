@@ -55,6 +55,7 @@
         this.stage      = this.createStage("world");
         this.background = this.createBackground();
         this.worldBoard = this.createWorldBoard();
+        this.zoom       = 1.0;
 
         this.stage.add(this.background);
         this.stage.add(this.worldBoard);
@@ -125,16 +126,18 @@
     //
     WorldRenderer.prototype.createWorldBoard = function () {
 
-        var self       = this,
-            width      = this.stage.getWidth(),
-            height     = this.stage.getHeight(),
-            border     = Math.max(Math.max(width * 0.05, height * 0.05), 10),
-            squareSize = Math.max((width - border*2) / this.viewModel.size.x(), (height - border*2) / this.viewModel.size.y()),
-            layer      = new Kinetic.Layer({ opacity: 0.0, draggable: true }),
-            board      = new Kinetic.Rect({
+        var self   = this,
+            width  = this.stage.getWidth(),
+            height = this.stage.getHeight(),
+            border = Math.max(Math.max(width * 0.05, height * 0.05), 10),
+            layer  = new Kinetic.Layer({ opacity: 0.0, draggable: true });
+
+        this.squareSize = Math.max((width - border * 2) / this.viewModel.size.x(), (height - border * 2) / this.viewModel.size.y());
+
+        var board = new Kinetic.Rect({
                 x: border, y: border,
                 width: this.viewModel.size.x(), height: this.viewModel.size.y(),
-                scale: squareSize,
+                scale: this.squareSize,
                 fill: "#ccc",
                 shadowColor: "white",
                 shadowBlur: 100,
@@ -144,25 +147,42 @@
             addAxis = function (points) {
                 var axis = new Kinetic.Line({
                     points: points,
-                    stroke: "#aaa",
-                    strokeWidth: 0.5
+                    stroke: "#999",
+                    strokeWidth: 0.5,
+                    drawHitFunc: function (){}
                 });
                 layer.add(axis);
             };
+
+        $(window).on("mousewheel", function(e) {
+            var scale = self.worldBoard.getScale(),
+                delta = e.originalEvent.wheelDelta;
+
+            if (delta < 0) {
+                self.zoom = Math.max(self.zoom-0.1, 0.7)
+            } else {
+                self.zoom = Math.min(self.zoom+0.1, 1.5)
+            }
+            self.worldBoard.setScale({
+                x: self.zoom,
+                y: self.zoom
+            });
+            self.worldBoard.draw();
+        });
 
         layer.add(board);
 
         for (var x = 1; x < this.viewModel.size.x(); x++) {
             addAxis([
-                border, border + (x*squareSize),
-                border + (this.viewModel.size.y()*squareSize), border + (x*squareSize)
+                border, border + (x*this.squareSize),
+                border + (this.viewModel.size.y()*this.squareSize), border + (x*this.squareSize)
             ]);
         }
 
         for (var y = 1; y < this.viewModel.size.y(); y++) {
             addAxis([
-                border + (y*squareSize), border,
-                border + (y*squareSize), border + (this.viewModel.size.x()*squareSize)
+                border + (y*this.squareSize), border,
+                border + (y*this.squareSize), border + (this.viewModel.size.x()*this.squareSize)
             ]);
         }
 
