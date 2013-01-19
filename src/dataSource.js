@@ -37,7 +37,7 @@
             var deferred = $.Deferred(),
                 modelUrl = config.couchDb.url;
             
-            request.post(modelUrl, {
+            request.put(modelUrl, {
                 json: model
             },
             function (error, response, body) {

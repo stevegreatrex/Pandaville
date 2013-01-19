@@ -5,8 +5,7 @@
     var
     request = sinon.mock({
         get: function () { },
-        post: function () { },
-        auth: function () { }
+        put: function () { }
     }),
     config = {
         couchDb: {
@@ -22,7 +21,7 @@
     // Helpers
     //
     var setupUpdateCall = function (model) {
-        var updateCall = request.expects("post")
+        var updateCall = request.expects("put")
             .withArgs(config.couchDb.url, {
                 json: model
             });
