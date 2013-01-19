@@ -5,9 +5,21 @@ requirejs.config({
     nodeRequire: require
 });
 
-requirejs(["GameServer", "express", "config", "errors", "fs"], function(GameServer, express, config, errors, fs) {
+requirejs(["GameServer", "express", "config", "errors", "underscore", "fs"], function(GameServer, express, config, errors, _, fs) {
     var server = new GameServer(),
-        app = express();
+        app = express(),
+        returnErrorAndModel = function (res, error, model) {
+             if (error === errors.modelNotFound) {
+                res.send(404);
+            } else {
+                res.json(500, model);
+            }
+            res.end();
+        },
+        returnModel = function (res, model) {
+            res.json(200, model);
+                res.end();
+        };
 
     app.use(express.bodyParser());
     app.configure(function() {
@@ -27,35 +39,16 @@ requirejs(["GameServer", "express", "config", "errors", "fs"], function(GameServ
         });
     });
 
-
-
-    app.post("/world/:worldId/:worldAction", function (req, res) {
-        if (config.server.logLevel === "verbose") {
-            console.log("Processing " + req.url);
-        }
-        server.worldAction(req.params.worldId, req.params.worldAction, req.body)
-            .fail(function (error, model) {
-
-                console.log("[" + req.url + "] Error :" + error);
-
-                if (error === errors.modelNotFound) {
-                    res.send(404);
-                } else {
-                    res.json(500, model);
-                }
-                res.end();
-            })
-            .done(function (model) {
-                if (config.server.logLevel === "verbose") {
-                    console.log("Completed " + req.url);
-                }
-                res.json(200, model);
-                res.end();
-            });
+    app.get("/world/:worldId", function (req, res) {
+         server.getModel(req.params.worldId)
+            .fail(_.bind(returnErrorAndModel, null, res))
+            .done(_.bind(returnModel, null, res));
     });
 
-    app.get("/", function(req, res) {
-        res.render("index.html");
+    app.post("/world/:worldId/:worldAction", function (req, res) {
+        server.worldAction(req.params.worldId, req.params.worldAction, req.body)
+            .fail(_.bind(returnErrorAndModel, null, res))
+            .done(_.bind(returnModel, null, res));
     });
 
     app.get("/:worldId", function(req, res) {
