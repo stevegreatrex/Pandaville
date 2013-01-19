@@ -29,16 +29,7 @@
     //
     // Helpers
     // 
-    var setupGetModelCall = function (model) {
-        api.expects("getModel")
-            .returns({
-            done: function (handler) {
-                //immediately invoke the callback
-                handler(model);
-            }
-        });
-    },
-    setupMappingCall = function (from, to) {
+    var setupMappingCall = function (from, to) {
         mapping.expects("fromJS")
             .withArgs(from)
             .returns(to);
@@ -51,19 +42,18 @@
         module("GameWorldViewModel");
 
         test("constructor sets name and world", function () {
-            var modelFromServer = {},
+            var initialModel = "initial", //using string to work around sinon matching; should be object
                 mappedModel = {};
 
-            setupGetModelCall(modelFromServer);
-            setupMappingCall(modelFromServer, mappedModel);
+            setupMappingCall(initialModel, mappedModel);
 
-            var viewModel = new GameWorldViewModel("id", api.object);
+            var viewModel = new GameWorldViewModel("id", api.object, initialModel);
 
             equal(viewModel.name(), "id");
-            equal(viewModel.world(), mappedModel, "world model should have been set");
+            equal(viewModel, mappedModel, "world model should have been set");
 
             //check that the GameWorld was constructed
-            equal(gameWorld.constructorModel, modelFromServer, "GameWorld should have been constructed with the model from the server");
+            equal(gameWorld.constructorModel, initialModel, "GameWorld should have been constructed with the model from the server");
         });
     });
 });
