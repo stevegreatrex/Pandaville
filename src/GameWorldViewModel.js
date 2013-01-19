@@ -1,21 +1,15 @@
 ﻿define(["jquery", "knockout", "knockout.mapping", "GameWorld", "command"], function ($, ko, mapping, GameWorld) {
-    var ViewModel = function (id, api) {
-        var self = this,
-            gameWorld,
-            updateWorld = function (model) {
-                self.world(mapping.fromJS(model));
+    var ViewModel = function (id, api, initialModel) {
+        var self = mapping.fromJS(initialModel),
+            gameWorld   = new GameWorld(initialModel),
+            updateWorld = function (newModel) {
+                mapping.fromJS(newModel, self);
             };
 
-        this.name = ko.observable(id);
-        this.world = ko.observable();
-        this.init = ko.command(function() {
-            return api.getModel().done(function (model) {
-                gameWorld = new GameWorld(model);
-                updateWorld(model);
-            });
-        });
-        
-        self.init();
+        self.name = ko.observable(id);
+
+        updateWorld(initialModel);
+        return self;
     };
 
     return ViewModel;
