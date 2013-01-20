@@ -51,12 +51,12 @@
     var WorldRenderer = function (viewModel) {
         var self = this;
         
-        this.viewModel       = viewModel;
-        this.stage           = this.createStage("world");
-        this.background      = this.createBackground();
-        this.worldBoardLayer = new Kinetic.Layer();
-        this.worldBoard      = this.createWorldBoard();
-        this.zoom            = 1.0;
+        this.viewModel          = viewModel;
+        this.stage              = this.createStage("world");
+        this.background         = this.createBackground();
+        this.worldBoardLayer    = new Kinetic.Layer();
+        this.worldBoard         = this.createWorldBoard();
+        this.zoom               = 1.0;
 
         this.renderBuildings();
         this.worldBoard.add(this.buildings);
@@ -64,6 +64,22 @@
         this.worldBoardLayer.add(this.worldBoard);
         this.stage.add(this.background);
         this.stage.add(this.worldBoardLayer);
+
+        $(window).on("mousewheel", function(e) {
+            var scale = self.worldBoardLayer.getScale(),
+                delta = e.originalEvent.wheelDelta;
+
+            if (delta < 0) {
+                self.zoom = Math.max(self.zoom-0.1, 0.7)
+            } else {
+                self.zoom = Math.min(self.zoom+0.1, 1.5)
+            }
+            self.worldBoardLayer.setScale({
+                x: self.zoom,
+                y: self.zoom
+            });
+            self.worldBoardLayer.draw();
+        });
 
         fadeIn(this.background, 1000, function () {
             fadeIn(self.worldBoard, 700);
@@ -157,25 +173,19 @@
                     drawHitFunc: function (){}
                 });
                 container.add(axis);
+                axis.setZIndex(1000);
             };
 
-        $(window).on("mousewheel", function(e) {
-            var scale = self.worldBoardLayer.getScale(),
-                delta = e.originalEvent.wheelDelta;
-
-            if (delta < 0) {
-                self.zoom = Math.max(self.zoom-0.1, 0.7)
-            } else {
-                self.zoom = Math.min(self.zoom+0.1, 1.5)
-            }
-            self.worldBoardLayer.setScale({
-                x: self.zoom,
-                y: self.zoom
-            });
-            self.worldBoardLayer.draw();
-        });
-
         container.add(board);
+        board.setZIndex(1000);
+
+        board.on("mousedown", function () {
+            if (self.selectedBuilding) {
+                self.selectedBuilding.isEditing(false);
+                self.selectedBuilding = null;
+                container.setDraggable(true);
+            }
+        });
 
         for (var x = 1; x < this.viewModel.size.x(); x++) {
             addAxis([
@@ -200,12 +210,58 @@
     // Building
     //
     WorldRenderer.prototype.createBuilding = function (building) {
-        var building = new Kinetic.Rect({
+        var self = this,
+            building = new Kinetic.Rect({
                 x: building.position.x() * this.squareSize, y: building.position.y() * this.squareSize,
                 width: building.size.x(), height: building.size.y(),
                 scale: this.squareSize,
-                fill: "#eee"
+                fill: "#eee",
+                dragBoundFunc: function (pos) {
+                    var containerPosition = building.getParent().getAbsolutePosition(),
+                        scale = self.squareSize * self.zoom,
+                        gridPos = {
+                            x: pos.x - ((pos.x - containerPosition.x) % scale),
+                            y: pos.y - ((pos.y - containerPosition.y) % scale)
+                        };
+
+                    if (gridPos.x < containerPosition.x) {
+                        gridPos.x = containerPosition.x;
+                    }
+
+                    if (gridPos.y < containerPosition.y) {
+                        gridPos.y = containerPosition.y;
+                    }
+
+                    return gridPos;
+                }
             });
+
+        building.isEditing = function (isEditing) {
+            if (isEditing && self.selectedBuilding) {
+                self.selectedBuilding.isEditing(false);
+            }
+
+            building._isEditing = isEditing;
+            building.setDraggable(isEditing);
+            building.setFill(isEditing ? "black" : "#eee");
+            building.setOpacity(isEditing ? 0.7 : 1.0);
+            building.setZIndex(isEditing ? 1 : 100);
+            building.getLayer().draw();
+
+            if (isEditing) {
+                self.selectedBuilding = building;
+                self.worldBoard.setDraggable(false);
+            }
+        };
+
+        building.on("click", function() {
+            building.isEditing(!building._isEditing);
+        });
+
+        building.on("dragmove", function () {
+
+        });
+    
 
         return building;
     };
