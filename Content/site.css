@@ -26,3 +26,11 @@
 		top: 40px;
 	}
 }
+
+td.world-cell {
+	background: #eee;
+	width: 30px;
+	height: 30px;
+	margin: 1px;
+	border: solid 1px #999;
+}

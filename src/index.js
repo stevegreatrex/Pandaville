@@ -19,6 +19,7 @@
         "knockout": { exports: "ko" },
         "kinetic": { exports: "Kinetic" },
         "knockout.mapping": ["knockout"],
+        "knockout.bindingHandlers": ["knockout"],
         "bootstrap": ["jquery"],
         "command": ["knockout"]
     }
@@ -31,21 +32,16 @@ require(["jquery", "knockout", "GameWorldViewModel", "ServerApi", "WorldRenderer
             loadWorld = function (worldId) {
                 var worldUrl = "/world/" + worldId;
 
-                $.get("/world.html")
+                $.get("/basicworld.html")
                     .done(function (html) {
                         $content.html(html);
                         var api = new ServerApi(worldId);
 
                         api.getModel().done(function(model) {
-                            var viewModel = new GameWorldViewModel(worldId, api, model),
-                                renderer = new WorldRenderer(viewModel);
+                            var viewModel = new GameWorldViewModel(worldId, api, model);;
 
                             ko.applyBindings(viewModel, $content[0]);
                         });
-                            
-
-                        
-
                     });
             };
 

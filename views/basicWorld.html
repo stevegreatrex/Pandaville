@@ -1,0 +1,15 @@
+﻿<table>
+    <tbody>
+        <!-- ko foreach: grid -->
+        <tr class="world-row">
+            <!-- ko foreach: $data -->
+            <td class="world-cell">
+                <div data-bind="with: $data">
+                    <span data-bind="text: name"></span>
+                </div>
+            </td>
+            <!-- /ko -->
+        </tr>
+        <!-- /ko -->
+    </tbody>
+</table>
