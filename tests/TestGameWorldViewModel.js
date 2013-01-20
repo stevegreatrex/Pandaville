@@ -36,7 +36,7 @@
     //
     // Module
     //
-    context(["GameWorldViewModel"], function (GameWorldViewModel) {
+    context(["GameWorldViewModel", "knockout.mapping"], function (GameWorldViewModel, mapping) {
         module("GameWorldViewModel");
 
         test("constructor sets name and world", function () {
@@ -56,24 +56,31 @@
             var initialModel = createInitialModel(),
                 viewModel = new GameWorldViewModel("id", api.object, initialModel);
 
-            //setup buildings
-            viewModel.buildings.push({
-                position: { x: 2, y: 0 }
-            });
-            viewModel.buildings.push({
-                position: { x: 1, y: 1 }
-            });
-
             //setup size
-            viewModel.size.x(3);
-            viewModel.size.y(3);
+            viewModel.size.x(5);
+            viewModel.size.y(5);
+            
+            //setup buildings
+            var bdg1 = mapping.fromJS({
+                position: { x: 3, y: 0 },
+                size: { x: 1, y: 3 }
+            }), bdg2 = mapping.fromJS({
+                position: { x: 0, y: 2 },
+                size: { x: 2, y: 2 }
+            });
+            viewModel.buildings.push(bdg1);
+            viewModel.buildings.push(bdg2);
+
+            
 
             var grid = viewModel.grid();
 
             deepEqual(grid, [
-                [null, null, buildings()[0]],
-                [null, buildings()[1], null,
-                [null, null, null]
+                [null, null, null, bdg1, null],
+                [null, null, null, /*1*/ null],
+                [bdg2, /*2*/ null, /*1*/ null],
+                [/*2*/ /*2*/ null, null, null],
+                [null, null, null, null, null],
             ]);
         });
     });
