@@ -7,9 +7,6 @@
         getModel: function () { },
         addBuilding: function () { }
     }),
-    mapping = sinon.mock({
-        fromJS: function () { }
-    }),
     gameWorld = sinon.mock({
         addBuilding: function () { },
         getModel: function () { }
@@ -22,17 +19,18 @@
         "GameWorld": function (model) {
             gameWorld.constructorModel = model;
             return gameWorld.object;
-        },
-        "knockout.mapping": mapping.object
+        }
     });
 
     //
     // Helpers
     // 
-    var setupMappingCall = function (from, to) {
-        mapping.expects("fromJS")
-            .withArgs(from)
-            .returns(to);
+    var createInitialModel = function () {
+        return {
+            size: { x: 1, y: 1 },
+            position: { x: 1, y: 1 },
+            buildings: []
+        };
     };
 
     //
@@ -42,18 +40,41 @@
         module("GameWorldViewModel");
 
         test("constructor sets name and world", function () {
-            var initialModel = "initial", //using string to work around sinon matching; should be object
-                mappedModel = {};
-
-            setupMappingCall(initialModel, mappedModel);
-
-            var viewModel = new GameWorldViewModel("id", api.object, initialModel);
+            var initialModel = createInitialModel(),
+                viewModel = new GameWorldViewModel("id", api.object, initialModel);
 
             equal(viewModel.name(), "id");
-            equal(viewModel, mappedModel, "world model should have been set");
+            ok(viewModel.size, "size should have been set");
+            ok(viewModel.position, "position should have been set");
+            ok(viewModel.buildings, "buildings should have been set");
 
             //check that the GameWorld was constructed
             equal(gameWorld.constructorModel, initialModel, "GameWorld should have been constructed with the model from the server");
+        });
+
+        test("grid returns buildings matrix", function() {
+            var initialModel = createInitialModel(),
+                viewModel = new GameWorldViewModel("id", api.object, initialModel);
+
+            //setup buildings
+            viewModel.buildings.push({
+                position: { x: 2, y: 0 }
+            });
+            viewModel.buildings.push({
+                position: { x: 1, y: 1 }
+            });
+
+            //setup size
+            viewModel.size.x(3);
+            viewModel.size.y(3);
+
+            var grid = viewModel.grid();
+
+            deepEqual(grid, [
+                [null, null, buildings()[0]],
+                [null, buildings()[1], null,
+                [null, null, null]
+            ]);
         });
     });
 });
