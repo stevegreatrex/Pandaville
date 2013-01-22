@@ -6,7 +6,8 @@
         "knockout": "../scripts/knockout-2.2.1",
         "knockout.mapping": "../scripts/knockout.mapping-latest",
         "bootstrap": "../scripts/bootstrap.min",
-        "command": "../scripts/command"
+        "command": "../scripts/command",
+        "kinetic": "../scripts/kinetic-v4.3.1"
     },
     map: {
         "*": {
@@ -16,24 +17,31 @@
     shim: {
         "underscore": { exports: "_" },
         "knockout": { exports: "ko" },
+        "kinetic": { exports: "Kinetic" },
         "knockout.mapping": ["knockout"],
+        "knockout.bindingHandlers": ["knockout"],
         "bootstrap": ["jquery"],
         "command": ["knockout"]
     }
 });
 
 
-require(["jquery", "knockout", "GameWorldViewModel", "ServerApi"], function ($, ko, GameWorldViewModel, ServerApi) {
+require(["jquery", "knockout", "GameWorldViewModel", "ServerApi", "WorldRenderer"], function ($, ko, GameWorldViewModel, ServerApi, WorldRenderer) {
     $(function () {
         var $content = $("#body-content"),
             loadWorld = function (worldId) {
                 var worldUrl = "/world/" + worldId;
 
-                $.get("/world.html")
+                $.get("/basicworld.html")
                     .done(function (html) {
                         $content.html(html);
                         var api = new ServerApi(worldId);
-                        ko.applyBindings(new GameWorldViewModel(worldId, api), $content[0]);
+
+                        api.getModel().done(function(model) {
+                            var viewModel = new GameWorldViewModel(worldId, api, model);;
+
+                            ko.applyBindings(viewModel, $content[0]);
+                        });
                     });
             };
 

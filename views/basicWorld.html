@@ -1,0 +1,17 @@
+﻿<table>
+    <tbody>
+        <!-- ko foreach: grid -->
+        <tr class="world-row">
+            <!-- ko foreach: $data -->
+            <td class="world-cell" data-bind="attr: { colspan: $data ? $data.size.x() : 1, rowspan: $data ? $data.size.y() : 1 }">
+                <!-- ko with: $data -->
+                <div data-bind="attr: { 'data-building': id, 'data-building-name': name }">
+                    <span data-bind="text: name"></span>
+                </div>
+                <!-- /ko -->
+            </td>
+            <!-- /ko -->
+        </tr>
+        <!-- /ko -->
+    </tbody>
+</table>
