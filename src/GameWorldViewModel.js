@@ -25,6 +25,11 @@
             refreshModelOnError = function (err, model) {
                 alert(err.message || err);
                 gameWorld.setModel(model);
+                updateObservableProperties();
+            },
+            updateObservableProperties = function () {
+                mapping.fromJS(gameWorld.getModel(), self);
+                refreshGrid();
             };
 
         self.name = ko.observable(id);
@@ -46,10 +51,10 @@
 
         self.addBuilding = ko.command(function (building) {
 
-            building = { name: 'New!', cost: 700, size: { x: 3, y: 4 }, position: { x: 10, y: 15 } };
-
+            building = { name: 'Four', cost: 700, size: { x: 1, y: 1 }, position: { x: 4, y: 6 } };
             gameWorld.addBuilding(building);
-            refreshGrid();
+            updateObservableProperties();
+
             return api.addBuilding(building);
         }).done(gameWorld.setModel).fail(refreshModelOnError);
 
