@@ -38,7 +38,6 @@
             },
             updateObservableProperties = function () {
                 mapping.fromJS(gameWorld.getModel(), self);
-                refreshGrid();
             };
 
         self.name = ko.observable(id);
@@ -52,6 +51,8 @@
 
             return api.addBuilding(building);
         }).done(gameWorld.setModel).fail(refreshModelOnError);
+
+        self.buildings.subscribe(refreshGrid);
 
         refreshGrid();
         return self;

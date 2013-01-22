@@ -1,4 +1,4 @@
-﻿require(["MockFactory", "sinon"], function(MockFactory, sinon) {
+﻿require(["MockFactory", "sinon", "jquery"], function(MockFactory, sinon, $) {
     //
     // Mock setup
     //
@@ -25,12 +25,12 @@
     //
     // Helpers
     // 
-    var createInitialModel = function () {
-        return {
+    var createInitialModel = function (opts) {
+        return $.extend(true, {
             size: { x: 1, y: 1 },
             position: { x: 1, y: 1 },
             buildings: []
-        };
+        }, opts);
     };
 
     //
@@ -53,13 +53,9 @@
         });
 
         test("grid returns buildings matrix", function() {
-            var initialModel = createInitialModel(),
+            var initialModel = createInitialModel({ size: { x: 5, y: 5 }}),
                 viewModel = new GameWorldViewModel("id", api.object, initialModel);
 
-            //setup size
-            viewModel.size.x(5);
-            viewModel.size.y(5);
-            
             //setup buildings
             var bdg1 = mapping.fromJS({
                 position: { x: 3, y: 0 },
