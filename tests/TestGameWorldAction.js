@@ -62,20 +62,67 @@
         ok(action.canExecute(), "canExecute should return flag value");
     });
 
+    test("canExecute supports objects being returned", function () {
+        var flag = false,
+            canExecute = function () {
+                return {
+                    canExecute: flag
+                };
+            },
+            action = GameWorldAction.create(noop, canExecute);
+
+        ok(!action.canExecute(), "canExecute should return flag value");
+
+        flag = true;
+        ok(action.canExecute(), "canExecute should return flag value");
+    });
+
+    test("canExecuteDetail returns the full result of the inner canExecute", function () {
+        var fullDetail = {
+                canExecute: true,
+                message: "some message",
+                id: "maybe it needs an ID"
+            },
+            canExecute = function () {
+                return fullDetail;
+            },
+            action = GameWorldAction.create(noop, canExecute);
+
+        deepEqual(action.canExecuteDetail(), fullDetail, "All the detail should have been returned");
+    });
+
     test("throws exception when non-function canExecute implementation is passed", function () {
         raises(function() {
-            GameWorldAction.canExecute(noop, {});
-        }, /canExecute/);
+            GameWorldAction.create(noop, {});
+        }, function (err) {
+            return !!/canExecute/.exec(err.message);
+        });
         raises(function() {
-            GameWorldAction.canExecute(noop, "non-function");
-        }, /canExecute/);
+            GameWorldAction.create(noop, "non-function");
+        }, function (err) {
+            return !!/canExecute/.exec(err.message);
+        });
     });
 
     test("throws exception when action is invoked and canExecute returns false", function () {
         var action = GameWorldAction.create(noop, function () { return false; });
 
-        //just expect an error
-        raises(action);
+        raises(action, function (err) {
+            return !!/canExecute/.exec(err.message);
+        });
+    });
+
+    test("throws exception with error message when one is returned from canExecute", function() {
+        var action = GameWorldAction.create(noop, function () {
+            return {
+                canExecute: false,
+                message: "Error!"
+            };
+        });
+
+        raises(action, function (err) {
+            return err.message === "Error!";
+        });
     });
 
     test("canExecute is passed calling parameters when invoked through the action", function () {

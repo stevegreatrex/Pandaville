@@ -32,7 +32,7 @@
     //
     // Module
     //
-    context(["dataSource", "errors",], function (dataSource, errors) {
+    context(["dataSource", "Error",], function (dataSource, Error) {
         module("dataSource");
 
         test("getModel throws on null id", function () {
@@ -58,7 +58,7 @@
             getCall.yield("error!", {});
 
             //check that the fail handler was invoked
-            equal(serverError, "error!", "Should have passed back the error from the server");
+            equal(serverError.message, "error!", "Should have passed back the error from the server");
         });
 
         test("getModel rejects with 'not found' error for 404s", function () {
@@ -78,7 +78,7 @@
             getCall.yield("error!", { statusCode: 404 });
 
             //check that the fail handler was invoked
-            equal(serverError, errors.modelNotFound, "Should interpret 404 as 'model not found'");
+            ok(Error.isModelNotFound(serverError), "Should interpret 404 as 'model not found'");
         });
 
         test("getModel returns the parsed model from couchdb", function () {
@@ -132,7 +132,7 @@
             updateCall.yield("error!", {});
 
             //check that the fail handler was invoked
-            equal(serverError, "error!", "Should have passed back the error from the server");
+            equal(serverError.message, "error!", "Should have passed back the error from the server");
         });
 
         test("updateModel rejects with 'not found' error for 404s", function () {
@@ -149,7 +149,7 @@
             updateCall.yield("error!", { statusCode: 404 });
 
             //check that the fail handler was invoked
-            equal(serverError, errors.modelNotFound, "Should interpret 404 as 'model not found'");
+            ok(Error.isModelNotFound(serverError), "Should interpret 404 as 'model not found'");
         });
 
         test("updateModel rejects with 'conflict' error for 409s", function () {
@@ -166,7 +166,7 @@
             updateCall.yield("error!", { statusCode: 409 });
 
             //check that the fail handler was invoked
-            equal(serverError, errors.updateConflict, "Should interpret 409 as 'conflict'");
+            ok(Error.isUpdateConflict(serverError), "Should interpret 409 as 'conflict'");
         });
 
         test("updateModel resolves when request succeeds", function () {

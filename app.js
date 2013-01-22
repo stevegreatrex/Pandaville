@@ -5,7 +5,11 @@ requirejs.config({
     nodeRequire: require
 });
 
+<<<<<<< HEAD
 requirejs(["GameServer", "express", "config", "errors", "underscore", "fs"], function(GameServer, express, config, errors, _, fs) {
+=======
+requirejs(["GameServer", "express", "config", "Error"], function(GameServer, express, config, Error) {
+>>>>>>> origin/2-Better-Error-Messages
     var server = new GameServer(),
         app = express(),
         returnErrorAndModel = function (res, error, model) {
@@ -45,10 +49,27 @@ requirejs(["GameServer", "express", "config", "errors", "underscore", "fs"], fun
             .done(_.bind(returnModel, null, res));
     });
 
+<<<<<<< HEAD
     app.post("/world/:worldId/:worldAction", function (req, res) {
         server.worldAction(req.params.worldId, req.params.worldAction, req.body)
             .fail(_.bind(returnErrorAndModel, null, res))
             .done(_.bind(returnModel, null, res));
+=======
+                if (Error.isModelNotFound(error)) {
+                    res.send(404);
+                } else {
+                    res.json(500, model);
+                }
+                res.end();
+            })
+            .done(function (model) {
+                if (config.server.logLevel === "verbose") {
+                    console.log("Completed " + req.url);
+                }
+                res.json(200, model);
+                res.end();
+            });
+>>>>>>> origin/2-Better-Error-Messages
     });
 
     app.get("/:worldId", function(req, res) {

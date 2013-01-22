@@ -1,17 +1,17 @@
-﻿define(["jquery-deferred", "config", "request", "errors"], function ($, config, request, errors) {
+﻿define(["jquery-deferred", "config", "request", "Error"], function ($, config, request, Error) {
     var handleError = function (response, error, deferred) {
         if (response.statusCode === 404) {
-            deferred.reject(errors.modelNotFound);
+            deferred.reject(Error.modelNotFound());
             return true;
         }
 
         if (response.statusCode === 409) {
-            deferred.reject(errors.updateConflict);
+            deferred.reject(Error.updateConflict());
             return true;
         }
         
         if (error) {
-            deferred.reject(error);
+            deferred.reject(Error.create(error));
             return true;
         }
     };

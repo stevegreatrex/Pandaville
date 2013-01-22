@@ -1,4 +1,4 @@
-﻿require(["MockFactory", "sinon", "jquery", "errors"], function(MockFactory, sinon, $, Errors) {
+﻿require(["MockFactory", "sinon", "jquery", "Error"], function(MockFactory, sinon, $, Error) {
     //
     // Mock setup
     //
@@ -83,11 +83,11 @@
             });
 
             //now fail the datasource
-            dataSourcePromise.reject(Errors.modelNotFound);
+            dataSourcePromise.reject(Error.modelNotFound());
 
             //and check that the server promise was rejected
             equal(serverPromise.state(), "rejected", "Should have been resolved");
-            equal(serverError, Errors.modelNotFound);
+            ok(Error.isModelNotFound(serverError));
         });
 
         test("worldAction fails if action doesn't exist", function () {
@@ -123,8 +123,9 @@
 
                 //and check that the server promise was rejected with the original model
                 equal(serverPromise.state(), "rejected", "Should have been rejected");
-                equal(serverError, Errors.invalidAction, "Returned error was incorrect");
+                ok(Error.isInvalidAction(serverError), "Returned error was incorrect");
                 equal(returnedModel, model, "Should have returned the original model");
+                equal(serverError.message, "Action not found");
 
                 //check that the constructed GameWorld had the model passed in
                 equal(gameWorld.constructorModel, model, "Unexpected constructor model");
@@ -153,7 +154,8 @@
             equal(serverPromise.state(), "pending", "Should not be resolved yet");
 
             //make canExecute return false
-            gameWorld.object.addBuilding.canExecute = sinon.stub().withArgs(building).returns(false);
+            gameWorld.object.addBuilding.canExecute       = sinon.stub().withArgs(building).returns(false);
+            gameWorld.object.addBuilding.canExecuteDetail = sinon.stub().withArgs(building).returns({ canExecute: false, message: "fail reason" });
             
             //record the error and returned model from the server
             var serverError, returnedModel;
@@ -167,8 +169,9 @@
 
             //and check that the server promise was rejected with the original model
             equal(serverPromise.state(), "rejected", "Should have been rejected");
-            equal(serverError, Errors.invalidAction, "Returned error was incorrect");
+            ok(Error.isInvalidAction(serverError), "Returned error was incorrect");
             equal(returnedModel, model, "Should have returned the original model");
+            equal(serverError.message, "fail reason", "Failure reason should have been passed back to client");
 
             //check that the constructed GameWorld had the model passed in
             equal(gameWorld.constructorModel, model, "Unexpected constructor model");

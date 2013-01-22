@@ -1,4 +1,4 @@
-﻿define(["underscore", "jquery-deferred", "GameWorld", "dataSource", "errors"], function (_, $, GameWorld, dataSource, Errors) {
+﻿define(["underscore", "jquery-deferred", "GameWorld", "dataSource", "Error"], function (_, $, GameWorld, dataSource, Error) {
     var GameServer = function () {
 
     };
@@ -15,8 +15,14 @@
         onModelRetrieved = function (model) {
             var world = new GameWorld(model);
 
-            if (!world[action] || !world[action].canExecute.apply(this, actionArgs)) {
-                deferred.reject(Errors.invalidAction, model);
+            if (!world[action]) {
+                deferred.reject(Error.invalidAction("Action not found"), model);
+                return;
+            }
+
+            if (!world[action].canExecute.apply(this, actionArgs)) {
+                var detail = world[action].canExecuteDetail.apply(this, actionArgs);
+                deferred.reject(Error.invalidAction(detail.message), model);
             } else {
                 world[action].apply(this, actionArgs);
                 var updatedModel = world.getModel();

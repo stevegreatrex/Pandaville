@@ -1,18 +1,33 @@
-﻿define(function () {
+﻿define(["jquery", "Error"], function ($, Error) {
     var create = function (action, canExecute) {
-        if (typeof action !== "function") { throw "Invalid action parameter"; }
-        if (canExecute && typeof canExecute !== "function") { throw "Invalid canExecute parameter"; }
+        if (typeof action !== "function") { throw Error.create("Invalid action parameter"); }
+        if (canExecute && typeof canExecute !== "function") { throw Error.create("Invalid canExecute parameter"); }
 
-        canExecute = canExecute || function () { return true; };
+        canExecute = canExecute || function () { return { canExecute: true }; };
 
-        var innerAction = function () {
-            var args = Array.prototype.slice.call(arguments, 0);
-            if (!canExecute.apply(this, args)) { throw "canExecute is false"; }
+        var unwrap = function (canExecuteResult) {
+            if ($.isPlainObject(canExecuteResult)) {
+                return canExecuteResult.canExecute;
+            } else {
+                return canExecuteResult;
+            }
+        },
+        innerAction = function () {
+            var args = Array.prototype.slice.call(arguments, 0),
+                canExecuteResult = canExecute.apply(this, args);
+
+            if (!unwrap(canExecuteResult)) {
+                throw Error.create(canExecuteResult.message || "canExecute is false");
+            }
 
             return action.apply(this, args);
         };
 
-        innerAction.canExecute = canExecute;
+        innerAction.canExecuteDetail = canExecute;
+        innerAction.canExecute = function () {
+            var args = Array.prototype.slice.call(arguments, 0);
+            return unwrap(canExecute.apply(this, args));
+        };
 
         return innerAction;
     };
