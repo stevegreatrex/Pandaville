@@ -113,6 +113,7 @@
                 money: 1000,
                 buildings: [
                     {
+                        name: "original",
                         position: { x: 2, y: 2 },
                         size: { x: 3, y: 3 }
                     }
@@ -125,10 +126,8 @@
             startFromWithin          = createBuilding({ position: { x: 3, y: 3 }, size: { x: 5, y: 5 } }),
             overlapEntirelyFromAbove = createBuilding({ position: { x: 3, y: 1 }, size: { x: 1, y: 5 } }),
             overlapEntirelyFromSide  = createBuilding({ position: { x: 1, y: 3 }, size: { x: 5, y: 1 } }),
-            sameSizeAndPosition      = createBuilding({ position: { x: 2, y: 2 }, size: { x: 3, y: 3 } }),
-            nameless                 = createBuilding({ position: { x: 3, y: 3 }, size: { x: 1, y: 1 } });
+            sameSizeAndPosition      = createBuilding({ position: { x: 2, y: 2 }, size: { x: 3, y: 3 } });
 
-        delete nameless.name;
 
         ok(!world.addBuilding.canExecute(fullyWithin), "Fully within another building");
         ok(!world.addBuilding.canExecute(overlapFromAbove), "Starting outside, then passing downward through existing building");
@@ -138,13 +137,16 @@
         ok(!world.addBuilding.canExecute(overlapEntirelyFromSide), "Starting outside, then passing sideways through existing building and out other side");
         ok(!world.addBuilding.canExecute(sameSizeAndPosition), "Same size and position");
 
-        equal(world.addBuilding.canExecuteDetail(fullyWithin).message, "Overlaps Building");
-        equal(world.addBuilding.canExecuteDetail(overlapFromAbove).message, "Overlaps Building");
-        equal(world.addBuilding.canExecuteDetail(overlapFromSide).message, "Overlaps Building");
-        equal(world.addBuilding.canExecuteDetail(overlapEntirelyFromAbove).message, "Overlaps Building");
-        equal(world.addBuilding.canExecuteDetail(overlapEntirelyFromSide).message, "Overlaps Building");
-        equal(world.addBuilding.canExecuteDetail(sameSizeAndPosition).message, "Overlaps Building");
-        equal(world.addBuilding.canExecuteDetail(nameless).message, "Overlaps existing building");
+        equal(world.addBuilding.canExecuteDetail(fullyWithin).message, "Overlaps original");
+        equal(world.addBuilding.canExecuteDetail(overlapFromAbove).message, "Overlaps original");
+        equal(world.addBuilding.canExecuteDetail(overlapFromSide).message, "Overlaps original");
+        equal(world.addBuilding.canExecuteDetail(overlapEntirelyFromAbove).message, "Overlaps original");
+        equal(world.addBuilding.canExecuteDetail(overlapEntirelyFromSide).message, "Overlaps original");
+        equal(world.addBuilding.canExecuteDetail(sameSizeAndPosition).message, "Overlaps original");
+
+        delete model.buildings[0].name;
+
+        equal(world.addBuilding.canExecuteDetail(sameSizeAndPosition).message, "Overlaps existing building");
     });
 
     test("addBuilding can execute when specified building does not overlap an existing one", function () {

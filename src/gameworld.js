@@ -98,7 +98,7 @@
                 }
                 var overlappingBuilding = findOverlappingBuilding(model, building);
                 if (overlappingBuilding) {
-                    return { canExecute: false, message: "Overlaps " + (building.name || "existing building") };
+                    return { canExecute: false, message: "Overlaps " + (overlappingBuilding.name || "existing building") };
                 }
                 return true;
             });
