@@ -2,16 +2,26 @@
     var ViewModel = function (id, api, initialModel) {
         var self      = mapping.fromJS(initialModel),
             gameWorld = new GameWorld(initialModel),
-            gridDependency = ko.observable(),
-            refreshGrid = function () {
-              gridDependency.valueHasMutated();  
-            },
             createEmptyArray = function (size, insertArray) {
                 var result = [];
                 for (var i = 0; i < size; i++) {
                     result.push(insertArray ? createEmptyArray(self.size.x()) : null);
                 }
                 return result;
+            },
+            refreshGrid = function () {
+                var buildings = self.buildings(),
+                    rows = createEmptyArray(self.size.y(), true);
+
+                for (var i = 0; i < buildings.length; i++) {
+                    var building = buildings[i],
+                        buildingPos = building.position;
+
+                    rows[buildingPos.y()][buildingPos.x()] = building;
+                    clearBuildingSpace(rows, building);
+                }
+
+                self.grid(rows);
             },
             clearBuildingSpace = function (grid, building) {
                 for (var y = 0; y < building.size.y(); y++) {
@@ -23,7 +33,6 @@
                 }
             },
             refreshModelOnError = function (err, model) {
-                alert(err.message || err);
                 gameWorld.setModel(model);
                 updateObservableProperties();
             },
@@ -33,31 +42,18 @@
             };
 
         self.name = ko.observable(id);
-        self.grid = ko.computed(function () {
-            var buildings = self.buildings(),
-                fakeDependency = gridDependency(),
-                rows = createEmptyArray(self.size.y(), true);
-
-            for (var i = 0; i < buildings.length; i++) {
-                var building = buildings[i],
-                    buildingPos = building.position;
-
-                rows[buildingPos.y()][buildingPos.x()] = building;
-                clearBuildingSpace(rows, building);
-            }
-
-            return rows;
-        }, this);
+        self.grid = ko.observableArray();
 
         self.addBuilding = ko.command(function (building) {
 
-            building = { name: 'Four', cost: 700, size: { x: 1, y: 1 }, position: { x: 4, y: 6 } };
+            building = { name: '8', cost: 700, size: { x: 1, y: 1 }, position: { x: 4, y: 9 } };
             gameWorld.addBuilding(building);
             updateObservableProperties();
 
             return api.addBuilding(building);
         }).done(gameWorld.setModel).fail(refreshModelOnError);
 
+        refreshGrid();
         return self;
     };
 
