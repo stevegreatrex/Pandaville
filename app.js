@@ -5,7 +5,7 @@ requirejs.config({
     nodeRequire: require
 });
 
-requirejs(["GameServer", "express", "config", "errors"], function(GameServer, express, config, errors) {
+requirejs(["GameServer", "express", "config", "Error"], function(GameServer, express, config, Error) {
     var server = new GameServer(),
         app = express();
 
@@ -27,7 +27,7 @@ requirejs(["GameServer", "express", "config", "errors"], function(GameServer, ex
 
                 console.log("[" + req.url + "] Error :" + error);
 
-                if (error === errors.modelNotFound) {
+                if (Error.isModelNotFound(error)) {
                     res.send(404);
                 } else {
                     res.json(500, model);

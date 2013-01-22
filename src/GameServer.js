@@ -1,4 +1,4 @@
-﻿define(["underscore", "jquery-deferred", "GameWorld", "dataSource", "errors"], function (_, $, GameWorld, dataSource, Errors) {
+﻿define(["underscore", "jquery-deferred", "GameWorld", "dataSource", "Error"], function (_, $, GameWorld, dataSource, Error) {
     var GameServer = function () {
 
     };
@@ -16,7 +16,7 @@
             var world = new GameWorld(model);
 
             if (!world[action] || !world[action].canExecute.apply(this, actionArgs)) {
-                deferred.reject(Errors.invalidAction, model);
+                deferred.reject(Error.invalidAction(), model);
             } else {
                 world[action].apply(this, actionArgs);
                 var updatedModel = world.getModel();
