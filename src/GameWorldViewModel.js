@@ -2,6 +2,10 @@
     var ViewModel = function (id, api, initialModel) {
         var self      = mapping.fromJS(initialModel),
             gameWorld = new GameWorld(initialModel),
+            gridDependency = ko.observable(),
+            refreshGrid = function () {
+              gridDependency.valueHasMutated();  
+            },
             createEmptyArray = function (size, insertArray) {
                 var result = [];
                 for (var i = 0; i < size; i++) {
@@ -17,11 +21,16 @@
                         }
                     }
                 }
+            },
+            refreshModelOnError = function (err, model) {
+                alert(err.message || err);
+                gameWorld.setModel(model);
             };
 
         self.name = ko.observable(id);
         self.grid = ko.computed(function () {
             var buildings = self.buildings(),
+                fakeDependency = gridDependency(),
                 rows = createEmptyArray(self.size.y(), true);
 
             for (var i = 0; i < buildings.length; i++) {
@@ -34,6 +43,15 @@
 
             return rows;
         }, this);
+
+        self.addBuilding = ko.command(function (building) {
+
+            building = { name: 'New!', cost: 700, size: { x: 3, y: 4 }, position: { x: 10, y: 15 } };
+
+            gameWorld.addBuilding(building);
+            refreshGrid();
+            return api.addBuilding(building);
+        }).done(gameWorld.setModel).fail(refreshModelOnError);
 
         return self;
     };

@@ -76,6 +76,9 @@
         self.getModel = function () {
             return model;
         };
+        self.setModel = function (newModel) {
+            model = newModel || model;
+        };
 
         self.addBuilding = GameWorldAction.create(
             function (building) {
