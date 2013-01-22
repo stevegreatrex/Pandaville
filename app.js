@@ -11,8 +11,11 @@ requirejs(["GameServer", "express", "config", "Error", "underscore", "fs"], func
         returnErrorAndModel = function (res, error, model) {
              if (Error.isModelNotFound(error)) {
                 res.send(404);
-            } else {
-                res.json(500, model);
+             } else {
+                 res.json(500, {
+                     model: model,
+                     error: error
+                 });
             }
             res.end();
         },

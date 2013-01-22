@@ -9,7 +9,20 @@
     };
 
     ServerApi.prototype.addBuilding = function (building) {
-        return $.post(this.url + "addBuilding", building);
+        var deferred = $.Deferred();
+        $.ajax({
+            url: this.url + "addBuilding",
+            contentType: "application/json",
+            data: JSON.stringify(building),
+            type: "post"
+        })
+        .done(deferred.resolve)
+        .fail(function (error, b, c, d) {
+            var detail = JSON.parse(error.responseText);
+            deferred.reject(detail.error, detail.model);
+        });
+
+        return deferred.promise();
     };
 
     return ServerApi;
