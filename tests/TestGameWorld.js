@@ -45,6 +45,26 @@
         equal(world.getModel(), model, "Should use constructor-specified model");
     });
 
+    test("setModel sets the model", function () {
+        var model = createModel(),
+            world = new GameWorld(model),
+            newModel = { key: "new model" };
+
+        world.setModel(newModel);
+
+        equal(world.getModel(), newModel, "Should use udpated model");
+    });
+
+    test("setModel ignores null models", function () {
+        var model = createModel(),
+            world = new GameWorld(model);
+
+        world.setModel();
+        world.setModel(null);
+
+        equal(world.getModel(), model, "Should use constructor-specified model");
+    });
+
     test("addBuilding cannot execute with no building", function () {
         var world = new GameWorld();
 
