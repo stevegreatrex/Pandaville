@@ -22,6 +22,7 @@
         //create a populated building
         createBuilding = function (opts) {
             return $.extend(true, {
+                name: "Building",
                 cost: 0,
                 size: { x: 1, y: 1 },
                 position: { x: 1, y: 1 }
@@ -48,6 +49,7 @@
         var world = new GameWorld();
 
         ok(!world.addBuilding.canExecute(), "Should not be able to execute with a null building");
+        equal(world.addBuilding.canExecuteDetail().message, "Building was null");
     });
 
     test("addBuilding cannot execute when specified building costs more than balance", function() {
@@ -56,6 +58,8 @@
             building = createBuilding({ cost: 101 });
 
         ok(!world.addBuilding.canExecute(building), "Building is too expensive");
+        equal(world.addBuilding.canExecuteDetail(building).message, "Too expensive");
+        
     });
 
     test("addBuilding cannot execute when specified building doesn't fit", function () {
@@ -74,6 +78,14 @@
         ok(!world.addBuilding.canExecute(outOfBoundsY), "Out of bounds - too large Y position");
         ok(!world.addBuilding.canExecute(tooBigX), "Out of bounds - too big in X direction");
         ok(!world.addBuilding.canExecute(tooBigY), "Out of bounds - too big in Y direction");
+
+        equal(world.addBuilding.canExecuteDetail(outOfBoundsNegativeX).message, "Out of bounds");
+        equal(world.addBuilding.canExecuteDetail(outOfBoundsNegativeY).message, "Out of bounds");
+        equal(world.addBuilding.canExecuteDetail(outOfBoundsX).message, "Out of bounds");
+        equal(world.addBuilding.canExecuteDetail(outOfBoundsY).message, "Out of bounds");
+        equal(world.addBuilding.canExecuteDetail(tooBigX).message, "Out of bounds");
+        equal(world.addBuilding.canExecuteDetail(tooBigY).message, "Out of bounds");
+        
     });
 
     test("addBuilding cannot execute when specified building overlaps an existing one", function () {
@@ -93,7 +105,10 @@
             startFromWithin          = createBuilding({ position: { x: 3, y: 3 }, size: { x: 5, y: 5 } }),
             overlapEntirelyFromAbove = createBuilding({ position: { x: 3, y: 1 }, size: { x: 1, y: 5 } }),
             overlapEntirelyFromSide  = createBuilding({ position: { x: 1, y: 3 }, size: { x: 5, y: 1 } }),
-            sameSizeAndPosition      = createBuilding({ position: { x: 2, y: 2 }, size: { x: 3, y: 3 } });
+            sameSizeAndPosition      = createBuilding({ position: { x: 2, y: 2 }, size: { x: 3, y: 3 } }),
+            nameless                 = createBuilding({ position: { x: 3, y: 3 }, size: { x: 1, y: 1 } });
+
+        delete nameless.name;
 
         ok(!world.addBuilding.canExecute(fullyWithin), "Fully within another building");
         ok(!world.addBuilding.canExecute(overlapFromAbove), "Starting outside, then passing downward through existing building");
@@ -102,6 +117,14 @@
         ok(!world.addBuilding.canExecute(overlapEntirelyFromAbove), "Starting outside, then passing downward through existing building and out other side");
         ok(!world.addBuilding.canExecute(overlapEntirelyFromSide), "Starting outside, then passing sideways through existing building and out other side");
         ok(!world.addBuilding.canExecute(sameSizeAndPosition), "Same size and position");
+
+        equal(world.addBuilding.canExecuteDetail(fullyWithin).message, "Overlaps Building");
+        equal(world.addBuilding.canExecuteDetail(overlapFromAbove).message, "Overlaps Building");
+        equal(world.addBuilding.canExecuteDetail(overlapFromSide).message, "Overlaps Building");
+        equal(world.addBuilding.canExecuteDetail(overlapEntirelyFromAbove).message, "Overlaps Building");
+        equal(world.addBuilding.canExecuteDetail(overlapEntirelyFromSide).message, "Overlaps Building");
+        equal(world.addBuilding.canExecuteDetail(sameSizeAndPosition).message, "Overlaps Building");
+        equal(world.addBuilding.canExecuteDetail(nameless).message, "Overlaps existing building");
     });
 
     test("addBuilding can execute when specified building does not overlap an existing one", function () {

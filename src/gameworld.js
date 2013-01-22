@@ -54,7 +54,7 @@
         }
         return false;
     },
-    overlapsAnyBuilding = function (model, building) {
+    findOverlappingBuilding = function (model, building) {
         var existingBuildings = model.buildings,
             matrix            = buildMatrix(model.size);
         
@@ -62,11 +62,11 @@
         
         for (var i = 0; i < existingBuildings.length; i++) {
             if (checkOverlaps(matrix, existingBuildings[i])) {
-                return true;
+                return existingBuildings[i];
             }
         }
 
-        return false;
+        return null;
     };
 
     var GameWorld = function (initialModel) {
@@ -83,11 +83,21 @@
                 model.buildings.push(building);
                 model.money -= building.cost;
             },
-            function(building) {
-                return (building &&
-                    building.cost <= model.money &&
-                    isInBounds(model, building) &&
-                    !overlapsAnyBuilding(model, building));
+            function (building) {
+                if (!building) {
+                    return { canExecute: false, message: "Building was null" };
+                }
+                if (building.cost > model.money) {
+                    return { canExecute: false, message: "Too expensive" };
+                }
+                if (!isInBounds(model, building)) {
+                    return { canExecute: false, message: "Out of bounds" };
+                }
+                var overlappingBuilding = findOverlappingBuilding(model, building);
+                if (overlappingBuilding) {
+                    return { canExecute: false, message: "Overlaps " + (building.name || "existing building") };
+                }
+                return true;
             });
     };
 

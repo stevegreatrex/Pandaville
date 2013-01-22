@@ -125,6 +125,7 @@
                 equal(serverPromise.state(), "rejected", "Should have been rejected");
                 ok(Error.isInvalidAction(serverError), "Returned error was incorrect");
                 equal(returnedModel, model, "Should have returned the original model");
+                equal(serverError.message, "Action not found");
 
                 //check that the constructed GameWorld had the model passed in
                 equal(gameWorld.constructorModel, model, "Unexpected constructor model");
@@ -153,7 +154,8 @@
             equal(serverPromise.state(), "pending", "Should not be resolved yet");
 
             //make canExecute return false
-            gameWorld.object.addBuilding.canExecute = sinon.stub().withArgs(building).returns(false);
+            gameWorld.object.addBuilding.canExecute       = sinon.stub().withArgs(building).returns(false);
+            gameWorld.object.addBuilding.canExecuteDetail = sinon.stub().withArgs(building).returns({ canExecute: false, message: "fail reason" });
             
             //record the error and returned model from the server
             var serverError, returnedModel;
@@ -169,6 +171,7 @@
             equal(serverPromise.state(), "rejected", "Should have been rejected");
             ok(Error.isInvalidAction(serverError), "Returned error was incorrect");
             equal(returnedModel, model, "Should have returned the original model");
+            equal(serverError.message, "fail reason", "Failure reason should have been passed back to client");
 
             //check that the constructed GameWorld had the model passed in
             equal(gameWorld.constructorModel, model, "Unexpected constructor model");
