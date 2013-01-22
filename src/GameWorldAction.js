@@ -1,4 +1,4 @@
-﻿define(["jquery", "Error"], function ($, Error) {
+﻿define(["Error"], function (Error) {
     var create = function (action, canExecute) {
         if (typeof action !== "function") { throw Error.create("Invalid action parameter"); }
         if (canExecute && typeof canExecute !== "function") { throw Error.create("Invalid canExecute parameter"); }
@@ -6,7 +6,7 @@
         canExecute = canExecute || function () { return { canExecute: true }; };
 
         var unwrap = function (canExecuteResult) {
-            if ($.isPlainObject(canExecuteResult)) {
+            if (typeof canExecuteResult === "object") {
                 return canExecuteResult.canExecute;
             } else {
                 return canExecuteResult;
