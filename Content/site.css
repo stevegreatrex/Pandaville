@@ -11,13 +11,12 @@
 
 }
 
+#world-container {
+	position: relative;
+}
 #world {
 	position: absolute;
-	top: 50px;
-	bottom: 0px;
-	left: 0px;
-	right: 0px;
-	overflow: hidden;
+	background: #808080;
 }
 
 @media (min-width: 979px)
@@ -27,15 +26,6 @@
 	}
 }
 
-td.world-cell {
-	background: #eee;
-	width: 30px;
-	height: 30px;
-	padding: 0px;
-	border: solid 1px #999;
-}
-
-[data-building] {
-	background: red;
-	height: 100%;
+.building {
+	fill: red;
 }
