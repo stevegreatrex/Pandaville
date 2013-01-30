@@ -29,32 +29,28 @@
                 $svg = $element.parents("svg");
             
             $element.on("mousedown.drag", function (e) {
-                var startSvgOffset = $svg.offset(),
-                    startElementPosition = $element.position(),
+                var startElementPosition = $element.position(),
                     offsetInClient = {
                         x: e.clientX - startElementPosition.left,
                         y: e.clientY - startElementPosition.top
                     };
-                console.log(offsetInClient);
+
+                $element.data("dragging", true);
                     
-
-                $element.on("mousemove.drag", function (e) {
-                    console.log("mousemove");
-                    var svgOffset = $svg.offset(),
-                        elementOffset = $element.offset(),
-                        scale = $svg.data("scale");
-
-                    var x = (e.clientX - offsetInClient.x) / scale,
+                $svg.on("mousemove.drag", function (e) {
+                    if (!$element.data("dragging")) { return; }
+                    
+                    var scale = $svg.data("scale"),
+                        x = (e.clientX - offsetInClient.x) / scale,
                         y = (e.clientY - offsetInClient.y) / scale;
-
-                  
-                    console.log("(rounded offset) x: " + Math.round(e.offsetX / scale) + "; y: " + Math.round(e.offsetY / scale));
 
                     viewModel.position.x(Math.round(x));
                     viewModel.position.y(Math.round(y));
                 });
-                $element.on("mouseup.drag mouseout.drag", function () {
-                    $element.off("mousemove.drag mouseup.drag mouseout.drag");
+
+                $element.on("mouseup.drag", function () {
+                    $element.off("mouseup.drag mouseout.drag");
+                    $element.data("dragging", false);
                 });
             });
           
