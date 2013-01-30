@@ -2,6 +2,7 @@
     baseUrl: "../src",
     paths: {
         "jquery": "../scripts/jquery-1.8.3.min",
+        "jquery-ui": "../scripts/jquery-ui-1.10.0.min",
         "underscore": "../scripts/underscore.min",
         "knockout": "../scripts/knockout-2.2.1",
         "knockout.mapping": "../scripts/knockout.mapping-latest",
@@ -21,6 +22,7 @@
         "knockout.mapping": ["knockout"],
         "knockout.bindingHandlers": ["knockout"],
         "bootstrap": ["jquery"],
+        "jquery-ui": ["jquery"],
         "command": ["knockout"]
     }
 });

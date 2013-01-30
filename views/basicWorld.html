@@ -1,9 +1,17 @@
 ﻿<div id="world-container">
-<svg id="world" data-bind="worldSize: size">
-    <!-- ko foreach: buildings -->
-    <rect class="building" data-bind="scaleToWorld: true, attr: { x: position.x, y: position.y, width: size.x, height: size.y }"></rect>
-    <!-- /ko -->
-</svg>
+    <svg id="world" data-bind="worldSize: size">
+        <rect id="world-background" x="0" y="0" data-bind="scaleToWorld: true, attr: { width: size.x, height: size.y }"></rect>
 
-<a href="#" data-bind="click: addBuilding">Add Building</a>
+        <!-- ko foreach: buildings -->
+    
+            <rect class="building" data-bind="draggable: true, scaleToWorld: true, attr: { x: position.x, y: position.y, width: size.x, height: size.y }">
+            
+            </rect>
+            <text font-size="0.5" data-bind="scaleToWorld: true, text: position.x() + ':' + position.y(), attr: { x: position.x, y: position.y }"></text>
+    
+        <!-- /ko -->
+    </svg>
+
+    <a href="#" data-bind="click: addBuilding">Add Building</a>
+    
 </div>
